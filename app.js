@@ -1,6 +1,6 @@
 window.onload = function() {
-    const canvasWidth = 1500;
-    const canvasHeight = 1500;
+    const canvasWidth = 1520;
+    const canvasHeight = 1520;
     var SEGMENT_SIZE = 20
     var FPS = 60;
     var gameLoop;
@@ -11,6 +11,13 @@ window.onload = function() {
         38: 'NORTH',
         39: 'EAST',
         40: 'SOUTH'
+    };
+
+     var reverseDirKeyLookup = {
+        WEST: 37,
+        NORTH: 38,
+        EAST: 39,
+        SOUTH: 40
     };
 
     var unallowedDirLookup = {
@@ -43,6 +50,14 @@ window.onload = function() {
         var unallowed = unallowedDirLookup[currentDirection]
         return keyCode != unallowed;
     }    
+
+    function insideWorldBounds(keyCode, head) {
+        var direction = dirKeyLookup[keyCode];
+        var dirctionUpdate = dirUpdateLookup[direction];
+        var newX = head.x + dirctionUpdate.x;
+        var newY = head.y + dirctionUpdate.y;
+        return newX < canvasWidth &&  newX >= 0 && newY < canvasHeight && newY >= 0;
+    }
     
     function Snake(options) {
         var me = this;   
@@ -105,7 +120,7 @@ window.onload = function() {
     SnakeSegment.prototype.updatePos = function updatePos(x, y) {
         this.x = x;
         this.y = y;
-    };
+    };  
 
     SnakeSegment.prototype.draw = function draw() {
         var me = this;
@@ -124,32 +139,38 @@ window.onload = function() {
     }
 
     console.log("GOGOGOGO");
-    
+
+    function updateSnakeFromDirection(snake, keycode) {
+        snake.head.colour = 'black';
+        snake.head.draw();
+        var curHeadX = snake.head.x;
+        var curHeadY = snake.head.y;
+        snake.tail.clear();
+        var newTail = snake.tail.next;
+        var newHead = snake.tail
+        newHead.next = null;
+        snake.head.next = newHead;
+        snake.head = newHead;
+        snake.tail = newTail;
+        var direction = dirKeyLookup[keycode];
+        var dirctionUpdate = dirUpdateLookup[direction];
+        snake.head.x = curHeadX + dirctionUpdate.x;
+        snake.head.y = curHeadY + dirctionUpdate.y;
+        snake.head.colour = 'red';
+        snake.head.draw();
+        snake.currentDirection = direction;
+    }
+
     document.addEventListener('keydown', function(event) {
         if(event.keyCode === 81) {
             clearInterval(gameLoop);
         } else if(event.keyCode == 37 || event.keyCode == 39 || event.keyCode == 38 || event.keyCode == 40) { //LEFT
-
-            if(validDirectionChange(event.keyCode, snake.currentDirection)) {
-                snake.head.colour = 'black';
-                snake.head.draw();
-                var curHeadX = snake.head.x;
-                var curHeadY = snake.head.y;
-                snake.tail.clear();
-                var newTail = snake.tail.next;
-                var newHead = snake.tail
-                newHead.next = null;
-                snake.head.next = newHead;
-                snake.head = newHead;
-                snake.tail = newTail;
-                var direction = dirKeyLookup[event.keyCode];
-                var dirctionUpdate = dirUpdateLookup[direction];
-                snake.head.x = curHeadX + dirctionUpdate.x;
-                snake.head.y = curHeadY + dirctionUpdate.y;
-                snake.head.colour = 'red';
-                snake.head.draw();
-                snake.currentDirection = direction;
+            var validUpdate = validDirectionChange(event.keyCode, snake.currentDirection) && insideWorldBounds(event.keyCode, snake.head);
+            if(validUpdate) {
+                updateSnakeFromDirection(snake, event.keyCode);
             }
+        } else {
+
         }
     });
 
@@ -165,6 +186,11 @@ window.onload = function() {
     });
 
     gameLoop = setInterval(function() {
-      snake.drawAll()  ;
+        var keyCode = reverseDirKeyLookup[snake.currentDirection];
+        var validUpdate = insideWorldBounds(keyCode, snake.head);
+        if(validUpdate) {
+            updateSnakeFromDirection(snake, keyCode);
+        }
+        snake.drawAll();
     }, 1000 / FPS);
 };
