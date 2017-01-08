@@ -1,0 +1,31 @@
+{
+  "name": "html-snake",
+  "version": "1.0.0",
+  "description": "snakeeeeeeeeeeeee",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ponml/html-snake.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ponml/html-snake/issues"
+  },
+  "homepage": "https://github.com/ponml/html-snake#readme",
+  "dependencies": {
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
+    "file-loader": "^0.9.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-loader": "^6.2.7",
+    "babel-preset-latest": "^6.16.0",
+    "file-loader": "^0.9.0",
+    "webpack": "^1.13.3"
+  }
+}
