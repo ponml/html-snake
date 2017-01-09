@@ -1,7 +1,7 @@
 module.exports = {
 		entry: './app.js',
 		output: {
-			path: './html-snake',
+			path: '',
 			filename: '[name].bundle.js'
 		},
 		devtool: 'eval-source-map',
