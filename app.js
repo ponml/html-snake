@@ -1,6 +1,6 @@
 window.onload = function() {
     const canvasWidth = 1520;
-    const canvasHeight = 1520;
+    const canvasHeight = 920;
     var SEGMENT_SIZE = 20
     var FPS = 60;
     var gameLoop;
@@ -77,9 +77,9 @@ window.onload = function() {
     function insideWorldBounds(keyCode, head) {
         var direction = dirKeyLookup[keyCode];
         var directionUpdate = updateHeadByDirection[direction];
-        var newX = head.x + directionUpdate.x*2;
-        var newY = head.y + directionUpdate.y*2;
-        return newX < canvasWidth &&  newX >= 0 && newY < canvasHeight && newY >= 0;
+        var newX = head.x + directionUpdate.x;
+        var newY = head.y + directionUpdate.y;
+        return newX <= canvasWidth &&  newX >= 0 && newY <= canvasHeight && newY >= 0;
     }
     
     function Snake(options) {
@@ -95,6 +95,10 @@ window.onload = function() {
 
     Snake.prototype.reset = function reset() {
         var me = this;
+        
+        me.head = null;
+        me.tail = null;
+
         var tail = new SnakeSegment({
             x: me.x,
             y: me.y,
@@ -114,7 +118,8 @@ window.onload = function() {
 
         tail.next = body;
         body.next = head;
-        
+        head.next = null;
+
         me.head = head;
         me.tail = tail;
     };

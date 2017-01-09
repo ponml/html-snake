@@ -1,2 +1,2 @@
 webpack
-http-server bin -p 3000
+http-server -p 3000
