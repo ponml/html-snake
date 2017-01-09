@@ -266,21 +266,24 @@ window.onload = function() {
             snake.grow();
             food.setNewPosition();
             updateScore();
-            return;
+            return true;
         }
 
 
         if(snake.head.equal(snake.tail)) {
             resetGame(snake);
+            return false;
         }
 
         var current = snake.tail;
-        while(!snake.head.equal(current) && !current.equal(snake.head)) {
+        while(current != snake.head) {
             if(snake.head.equal(current)) {
                 resetGame(snake);
+                return false;
             }
             current = current.next;
         }
+        return true;
     }
 
     document.addEventListener('keydown', function(event) {
@@ -341,11 +344,14 @@ window.onload = function() {
         var keyCode = reverseDirKeyLookup[snake.currentDirection];
         var insideWorld = insideWorldBounds(keyCode, snake.head);
         if(insideWorld) {
-            updateSnakeFromDirection(snake, keyCode);
+            var check = checkCollisions(snake);
+            if(check) {
+                updateSnakeFromDirection(snake, keyCode);
+            }
+            checkCollisions(snake);
         } else {
             resetGame(snake);            
         }
-        checkCollisions(snake);
     }
 
     function draw() {
