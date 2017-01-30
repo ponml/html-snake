@@ -1,13 +1,14 @@
-//http://www.redblobgames.com/pathfinding/a-star/introduction.html
 var GameObjects = require("./scripts/snake.js");
 var Snake = GameObjects.Snake;
-var SnakeSegment = GameObjects.SnakeSegment;
+var Segment = GameObjects.Segment;
 var Food = GameObjects.Food;
+var Cell = GameObjects.Cell;
+var Grid = GameObjects.Grid;
 
 window.onload = function() {
     const canvasWidth = 1520;
     const canvasHeight = 920;
-    var SEGMENT_SIZE = 20
+    
     var FPS = 60;
     var gameLoop;
     var gameRunning = true;
@@ -35,39 +36,20 @@ window.onload = function() {
 
     var updateHeadByDirection = {
         NORTH: {
-            y: -1 * SEGMENT_SIZE,
+            y: -1 * Segment.SEGMENT_SIZE,
             x: 0
         },
         SOUTH: {
-            y: SEGMENT_SIZE,
+            y: Segment.SEGMENT_SIZE,
             x: 0
         },
         EAST: {
             y: 0,
-            x: SEGMENT_SIZE
+            x: Segment.SEGMENT_SIZE
         },
         WEST: {
             y: 0,
-            x: -1 * SEGMENT_SIZE
-        },                        
-    };
-
-    var updateTailByDirection = {
-        NORTH: {
-            y: SEGMENT_SIZE,
-            x: 0
-        },
-        SOUTH: {
-            y: -1 * SEGMENT_SIZE,
-            x: 0
-        },
-        EAST: {
-            y: 0,
-            x: -1 * SEGMENT_SIZE
-        },
-        WEST: {
-            y: 0,
-            x: SEGMENT_SIZE
+            x: -1 * Segment.SEGMENT_SIZE
         },                        
     };
 
@@ -112,12 +94,10 @@ window.onload = function() {
     function checkCollisions(snake) {
         if(snake.head.equal(food.item)) {
             snake.grow();
-            snake.grow();
             food.setNewPosition();
             updateScore();
             return true;
         }
-
 
         if(snake.head.equal(snake.tail)) {
             resetGame(snake);
@@ -160,13 +140,16 @@ window.onload = function() {
     canvasEl.width = canvasWidth;
     canvasEl.height = canvasHeight;
     var ctx = canvasEl.getContext('2d');
+    var g = GameObjects;
     var snake = new Snake({
         x: canvasWidth/2,
         y: canvasHeight/2,
         ctx: ctx
     });
 
-    var food = new Food(ctx);
+    var grid = new Grid(ctx, canvasWidth, canvasHeight, Segment.SEGMENT_SIZE);
+    grid.draw();
+    var food = new Food(ctx, canvasWidth, canvasHeight);
 
     var lastFrameTimeMs = 0 // The last time the loop was run
     var maxFPS = 31; // The maximum FPS we want to allow
