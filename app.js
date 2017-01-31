@@ -164,9 +164,17 @@ window.onload = function() {
         }                        
 
         children.forEach(function(child) {
-            child.d = parentNode.d + distanceFromNodeToNode(parentNode, child);
-            var L2 = distanceFromNodeToNode(child, food.item);
-            child.dPlusL2 = child.d + L2;
+
+            var found = null;
+            var childIsInClosed = closedSet.some(function(item) {
+                return item.equal(child);
+            });
+            if(!childIsInClosed) {
+                child.d = parentNode.d + distanceFromNodeToNode(parentNode, child);
+                var L2 = distanceFromNodeToNode(child, food.item);
+                child.dPlusL2 = child.d + L2;
+                child.parent = parentNode;
+            }
             fringeSet.push(child);
         });
 
@@ -177,25 +185,24 @@ window.onload = function() {
 
 //http://mnemstudio.org/path-finding-a-star.htm
     function findRoute() {
+        // fringeSet.forEach(function(node) {
+        //     node.colour = "orange";
+        //     node.draw();
+        // });
+
+        // closedSet.forEach(function(node) {
+        //     node.colour = "yellow";
+        //     node.draw();
+        // });
+
+
         if(fringeSet.length === 0) {
             return 0;
         } else {
             var node = fringeSet.shift();
             if(node.equal(food.item)) {
                 console.log("found")
-                if(node.equal(food.item)) {
-                    food.item.colour = "pink";
-                }
-
-                fringeSet.forEach(function(node) {
-                    node.colour = "orange";
-                    node.draw();
-                });
-
-                closedSet.forEach(function(node) {
-                    node.colour = "yellow";
-                    node.draw();
-                });
+                return node;
             } else {
                 var found = null;
                 var nodeIsInClosed = closedSet.some(function(item) {
@@ -235,7 +242,26 @@ window.onload = function() {
             }
         } else if(event.keyCode === 32) {
             search();
-            findRoute();
+            var node = findRoute();
+            if(node.equal(food.item)) {
+                food.item.colour = "pink";
+                fringeSet.forEach(function(node) {
+                    node.colour = "orange";
+                    node.draw();
+                });
+
+                closedSet.forEach(function(node) {
+                    node.colour = "yellow";
+                    node.draw();
+                });
+                var curNode = node.parent;
+                var counter = 0;
+                while(curNode && counter <  100) {
+                    curNode.draw("blue");
+                    curNode = curNode.parent;
+                    counter++;
+                }
+            }
             update();
         }
     });

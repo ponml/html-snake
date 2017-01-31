@@ -10,6 +10,7 @@ function Segment(options) {
     me.y = options.y;
     me.d = 0;
     me.dPlusL2 = 0;
+    me.parent = options.parent;
     me.ctx = options.ctx;
 }
 
@@ -18,15 +19,9 @@ Segment.prototype.updatePos = function updatePos(x, y) {
     this.y = y;
 };  
 
-Segment.prototype.draw = function draw() {
+Segment.prototype.draw = function draw(colour) {
     var me = this;
-    me.ctx.fillStyle = me.colour;
-    me.ctx.fillRect(me.x, me.y, me.width, me.height);
-};
-
-Segment.prototype.drawTarget = function drawTarget() {
-    var me = this;
-    me.ctx.fillStyle = "pink";
+    me.ctx.fillStyle = colour || me.colour;
     me.ctx.fillRect(me.x, me.y, me.width, me.height);
 };
 
