@@ -8,6 +8,8 @@ function Segment(options) {
     me.prev = options.prev || null;
     me.x = options.x;
     me.y = options.y;
+    me.d = 0;
+    me.dPlusL2 = 0;
     me.ctx = options.ctx;
 }
 
@@ -19,6 +21,12 @@ Segment.prototype.updatePos = function updatePos(x, y) {
 Segment.prototype.draw = function draw() {
     var me = this;
     me.ctx.fillStyle = me.colour;
+    me.ctx.fillRect(me.x, me.y, me.width, me.height);
+};
+
+Segment.prototype.drawTarget = function drawTarget() {
+    var me = this;
+    me.ctx.fillStyle = "pink";
     me.ctx.fillRect(me.x, me.y, me.width, me.height);
 };
 
@@ -167,6 +175,7 @@ Food.prototype.getRandXY = function getRandXY() {
 Food.prototype.setNewPosition = function setNewPosition() {
     var me = this;
     var pos = me.getRandXY();
+    me.item.colour = "green";
     me.item.x = pos.x;
     me.item.y = pos.y;   
 };
@@ -177,14 +186,6 @@ Food.prototype.draw = function draw() {
 
 Food.prototype.clear = function clear() {
     this.item.clear();
-}
-
-function Cell(x,y) {
-    var me = this;
-    me.x = x;
-    me.y = y;
-    me.width = Segment.SEGMENT_SIZE;
-    me.height = Segment.SEGMENT_SIZE;
 }
 
 function Grid(ctx, width, height, cellSize) {
@@ -199,7 +200,13 @@ function Grid(ctx, width, height, cellSize) {
     for(x = 0; x < width ; x += cellSize) {
         for(y = 0 ; y < height; y += cellSize) {
             var index = x/cellSize;
-            var newCell = new Cell(x, y);
+            var newCell = new Segment({
+                x: x,
+                y: y,
+                width: Segment.SEGMENT_SIZE,
+                height: Segment.SEGMENT_SIZE,
+                ctx: ctx
+            });
             if(!me.cells[index]) {
                 me.cells[index] = [newCell];
             } else {
@@ -227,5 +234,4 @@ module.exports = {
     Snake: Snake,
     Segment: Segment,
     Grid: Grid,
-    Cell: Cell
 };
