@@ -54,6 +54,7 @@ window.onload = function() {
 
     var fringeSet = [];
     var closedSet = [];
+    var nodePath = [];
 
     function validDirectionChange(keyCode, currentDirection) {
         var direction = dirKeyLookup[keyCode];
@@ -70,6 +71,27 @@ window.onload = function() {
         var newX = head.x + directionUpdate.x;
         var newY = head.y + directionUpdate.y;
         return newX <= canvasWidth &&  newX >= 0 && newY <= canvasHeight && newY >= 0;
+    }
+
+    function updateSnakeFromNode(node) {
+        snake.head.colour = 'black';
+        snake.head.draw();
+        var curHeadX = snake.head.x;
+        var curHeadY = snake.head.y;
+        snake.tail.clear();
+        var newTail = snake.tail.next;
+        var newHead = new Segment({
+            x: node.x,
+            y: node.y,
+            ctx: node.ctx,
+            type: "snake"
+        });
+
+        newHead.next = null;
+        snake.head.next = newHead;
+        snake.head = newHead;
+        snake.tail = newTail;
+        snake.head.colour = 'red';
     }
 
     function updateSnakeFromDirection(snake, keycode) {
@@ -101,20 +123,20 @@ window.onload = function() {
             return true;
         }
 
-        if(snake.head.equal(snake.tail)) {
-            resetGame(snake);
-            return false;
-        }
+        // if(snake.head.equal(snake.tail)) {
+        //     resetGame(snake);
+        //     return false;
+        // }
 
-        var current = snake.tail;
-        while(current != snake.head) {
-            if(snake.head.equal(current)) {
-                resetGame(snake);
-                return false;
-            }
-            current = current.next;
-        }
-        return true;
+        // var current = snake.tail;
+        // while(current != snake.head) {
+        //     if(snake.head.equal(current)) {
+        //         resetGame(snake);
+        //         return false;
+        //     }
+        //     current = current.next;
+        // }
+        // return true;
     }
     
     function search() {
@@ -129,6 +151,31 @@ window.onload = function() {
         fringeSet = [];
         closedSet = [];
         fringeSet.push(snake.head);
+
+        var node = findRoute();
+        if(node.equal(food.item)) {
+            food.item.colour = "pink";
+            fringeSet.forEach(function(node) {
+                node.colour = "orange";
+                node.draw();
+            });
+
+            closedSet.forEach(function(node) {
+                node.colour = "yellow";
+                node.draw();
+            });
+
+            if(node) {
+                nodePath.unshift(node);
+                var curNode = node.parent;
+                while(curNode) {
+                    curNode.draw("blue");
+                    nodePath.unshift(curNode);
+                    curNode = curNode.parent;
+                }
+            }
+        }
+
     }
 
     function addChildrenToFringeSet(parentNode) {
@@ -150,17 +197,31 @@ window.onload = function() {
             y: parentNode.y/Segment.SEGMENT_SIZE
         };
         var children = [];
-        if(northCoords.y >= 0) {
-            children.push(grid.cells[northCoords.x][northCoords.y]);
+
+
+        if(parentNode.y-Segment.SEGMENT_SIZE >= 0) {
+            var cellToConsider = grid.cells[northCoords.x][northCoords.y];
+            if(cellToConsider && cellToConsider.type !== "snake") {
+                children.push(cellToConsider);
+            }
         }
-        if(southCoords.y <= canvasHeight) {
-            children.push(grid.cells[southCoords.x][southCoords.y]);
+        if(parentNode.y+Segment.SEGMENT_SIZE < canvasHeight) {
+            var cellToConsider = grid.cells[southCoords.x][southCoords.y];
+            if(cellToConsider && cellToConsider.type !== "snake") {
+                children.push(cellToConsider);
+            }
         }
-        if(westCoords.x >= 0) {
-            children.push(grid.cells[westCoords.x][westCoords.y]);
+        if(parentNode.x-Segment.SEGMENT_SIZE >= 0) {
+            var cellToConsider = grid.cells[westCoords.x][westCoords.y];
+            if(cellToConsider && cellToConsider.type !== "snake") {            
+                children.push(cellToConsider);
+            }
         }
-        if(eastCoords.y <= canvasWidth) {
-            children.push(grid.cells[eastCoords.x][eastCoords.y]);
+        if(parentNode.x+Segment.SEGMENT_SIZE < canvasWidth) {
+            var cellToConsider = grid.cells[eastCoords.x][eastCoords.y];
+            if(cellToConsider && cellToConsider.type !== "snake") {
+                children.push(cellToConsider);
+            }
         }                        
 
         children.forEach(function(child) {
@@ -185,17 +246,6 @@ window.onload = function() {
 
 //http://mnemstudio.org/path-finding-a-star.htm
     function findRoute() {
-        // fringeSet.forEach(function(node) {
-        //     node.colour = "orange";
-        //     node.draw();
-        // });
-
-        // closedSet.forEach(function(node) {
-        //     node.colour = "yellow";
-        //     node.draw();
-        // });
-
-
         if(fringeSet.length === 0) {
             return 0;
         } else {
@@ -254,15 +304,17 @@ window.onload = function() {
                     node.colour = "yellow";
                     node.draw();
                 });
-                var curNode = node.parent;
-                var counter = 0;
-                while(curNode && counter <  100) {
-                    curNode.draw("blue");
-                    curNode = curNode.parent;
-                    counter++;
+
+                if(node) {
+                    nodePath.unshift(node);
+                    var curNode = node.parent;
+                    while(curNode) {
+                        curNode.draw("blue");
+                        nodePath.unshift(curNode);
+                        curNode = curNode.parent;
+                    }
                 }
             }
-            update();
         }
     });
 
@@ -312,17 +364,26 @@ window.onload = function() {
         updateScore();           
     }
 
+    // function update(direction) {
+    //     direction = direction || snake.currentDirection;
+    //     var keyCode = reverseDirKeyLookup[direction];
+    //     var insideWorld = insideWorldBounds(keyCode, snake.head);
+    //     if(insideWorld) {
+    //         var check = checkCollisions(snake);
+    //         if(check) {
+    //             updateSnakeFromDirection(snake, keyCode);
+    //         }
+    //         checkCollisions(snake);
+    //     } else {
+    //         resetGame(snake);            
+    //     }
+    // }
+
     function update() {
-        var keyCode = reverseDirKeyLookup[snake.currentDirection];
-        var insideWorld = insideWorldBounds(keyCode, snake.head);
-        if(insideWorld) {
-            var check = checkCollisions(snake);
-            if(check) {
-                updateSnakeFromDirection(snake, keyCode);
-            }
+        var node = nodePath.shift();
+        if(node) {
+            updateSnakeFromNode(node);
             checkCollisions(snake);
-        } else {
-            resetGame(snake);            
         }
     }
 
@@ -338,7 +399,10 @@ window.onload = function() {
                 return;
             }
             lastFrameTimeMs = timeStamp;
-            //update();
+            if(!nodePath.length) {
+                search();
+            }           
+            update();
             draw();
             requestAnimationFrame(gameLoop);
         }

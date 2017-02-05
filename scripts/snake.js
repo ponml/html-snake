@@ -12,6 +12,7 @@ function Segment(options) {
     me.dPlusL2 = 0;
     me.parent = options.parent;
     me.ctx = options.ctx;
+    me.type = options.type;
 }
 
 Segment.prototype.updatePos = function updatePos(x, y) {
@@ -63,18 +64,21 @@ Snake.prototype.reset = function reset() {
     var tail = new Segment({
         x: me.x,
         y: me.y,
-        ctx: me.ctx
+        ctx: me.ctx,
+        type: "snake"
     });
     var body = new Segment({
         x: tail.x + Segment.SEGMENT_SIZE,
         y: tail.y,
-        ctx: me.ctx
+        ctx: me.ctx,
+        type: "snake"
     });
     var head = new Segment({
         x: body.x + Segment.SEGMENT_SIZE,
         y: body.y,
         colour: 'red',
-        ctx: me.ctx
+        ctx: me.ctx,
+        type: "snake"
     });
 
     tail.next = body;
@@ -132,7 +136,8 @@ Snake.prototype.grow = function grow() {
     var newTail = new Segment({
         x: me.tail.x + directionUpdate.x,
         y: me.tail.y + directionUpdate.y,
-        ctx: me.ctx
+        ctx: me.ctx,
+        type: "snake"
     });
     newTail.next = me.tail;
     me.tail = newTail;
@@ -152,7 +157,8 @@ function Food(ctx, canvasWidth, canvasHeight) {
         ctx: ctx,
         x: startPosition.x,
         y: startPosition.y,
-        colour: 'green'
+        colour: 'green',
+        type: "food"
     });
 }
 
@@ -200,7 +206,8 @@ function Grid(ctx, width, height, cellSize) {
                 y: y,
                 width: Segment.SEGMENT_SIZE,
                 height: Segment.SEGMENT_SIZE,
-                ctx: ctx
+                ctx: ctx,
+                type: "grid"
             });
             if(!me.cells[index]) {
                 me.cells[index] = [newCell];
