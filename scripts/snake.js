@@ -35,14 +35,10 @@ Segment.prototype.clear = function clear() {
 
 Segment.prototype.equal = function(otherSegment) {
     var me = this;
-    if(me.x == otherSegment.x && me.y == otherSegment.y) {
-        return true;
-    } else {
-        return false;
-    }
+    return me.x == otherSegment.x && me.y == otherSegment.y;
 };
 
-Segment.SEGMENT_SIZE = 20;
+Segment.SEGMENT_SIZE = 10;
 
 function Snake(options) {
     var me = this;   
@@ -142,6 +138,20 @@ Snake.prototype.grow = function grow() {
     newTail.next = me.tail;
     me.tail = newTail;
 };
+
+Snake.prototype.cellIsSnake = function cellIsSnake(cell) {
+    var me = this;
+    var segment = me.tail;
+    var found = false;
+    while(segment) {
+        if(segment.equal(cell)) {
+            found = true;
+            break;
+        }
+        segment = segment.next;
+    }
+    return found;
+}
 
 function Food(ctx, canvasWidth, canvasHeight) {
     var me = this;
